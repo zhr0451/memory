@@ -12,6 +12,9 @@ var _world: Control
 var _items: Array[JunkItemView] = []
 var _zoom_from: int = -1
 var _busy: bool = false
+var _note: JunkNoteView
+
+const NOTE_POSITION := Vector2(1070, 905)
 
 
 func setup(params: Dictionary) -> void:
@@ -33,6 +36,7 @@ func _ready() -> void:
 		item.pressed.connect(_on_item_pressed)
 		_world.add_child(item)
 		_items.append(item)
+	_add_hidden_note()
 	bind(JunkyardViewModel.new(Game.state))
 	if _zoom_from >= 0:
 		_apply_zoom(_zoom_from, 1.0)
@@ -42,8 +46,29 @@ func _ready() -> void:
 func bind(vm: JunkyardViewModel) -> void:
 	_vm = vm
 	vm.chapter_selected.connect(_on_chapter_selected)
+	vm.note_found.connect(_on_note_found)
 	vm.chapters_done.changed.connect(func(_v: int) -> void: _refresh())
 	_refresh()
+
+
+func _add_hidden_note() -> void:
+	if Game.state.clock_note_found.value:
+		return
+	_note = JunkNoteView.new()
+	_note.position = NOTE_POSITION
+	_note.pressed.connect(func() -> void: _vm.find_note())
+	_world.add_child(_note)
+	var cover := JunkNoteView.Cover.new()
+	cover.position = NOTE_POSITION + Vector2(-34, 6)
+	_world.add_child(cover)
+
+
+func _on_note_found() -> void:
+	var tween := create_tween().set_parallel()
+	tween.tween_property(_note, "position:y", _note.position.y - 90.0, 0.5)
+	tween.tween_property(_note, "modulate:a", 0.0, 0.5)
+	await tween.finished
+	_note.queue_free()
 
 
 func _refresh() -> void:

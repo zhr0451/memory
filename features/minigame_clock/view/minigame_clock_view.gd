@@ -9,12 +9,15 @@ var _day_buttons: Array[Button] = []
 var _hour_knob: Knob
 var _minute_knob: Knob
 var _result: Label
+var _note: ColorRect
+
+const NOTE_REST := Rect2(60, 130, 380, 630)
 
 
 func _build() -> void:
 	_add_rect(Rect2(0, 0, 1920, 1080), Color("1b1a22"))
 	_build_note()
-	_add_rect(Rect2(480, 90, 1000, 880), Color("3a3f4b"))
+	_add_rect(Rect2(480, 90, 1000, 700), Color("3a3f4b"))
 	_face = ClockFaceView.new()
 	_face.position = Vector2(520, 140)
 	add_child(_face)
@@ -26,16 +29,16 @@ func _build() -> void:
 		day.toggle_mode = true
 		_day_buttons.append(day)
 	_hour_knob = Knob.new()
-	_hour_knob.position = Vector2(560, 590)
+	_hour_knob.position = Vector2(560, 560)
 	add_child(_hour_knob)
 	_minute_knob = Knob.new()
-	_minute_knob.position = Vector2(780, 590)
+	_minute_knob.position = Vector2(780, 560)
 	add_child(_minute_knob)
-	_add_label(Texts.get_text("clock.hours"), Rect2(540, 760, 200, 50), 32, Color("c5ccd8"))
-	_add_label(Texts.get_text("clock.minutes"), Rect2(760, 760, 200, 50), 32, Color("c5ccd8"))
-	_result = _add_label("", Rect2(950, 640, 480, 100), 36)
-	var wind := _add_button(Texts.get_text("clock.submit"), Rect2(1010, 770, 360, 110), 44)
-	bind(MinigameClockViewModel.new())
+	_add_label(Texts.get_text("clock.hours"), Rect2(540, 725, 200, 50), 32, Color("c5ccd8"))
+	_add_label(Texts.get_text("clock.minutes"), Rect2(760, 725, 200, 50), 32, Color("c5ccd8"))
+	_result = _add_label("", Rect2(950, 520, 480, 100), 36)
+	var wind := _add_button(Texts.get_text("clock.submit"), Rect2(1010, 640, 360, 110), 44)
+	bind(MinigameClockViewModel.new(Game.state))
 	wind.pressed.connect(_vm.submit)
 
 
@@ -59,12 +62,17 @@ func bind(vm: MinigameClockViewModel) -> void:
 	_hour_knob.angle = (vm.hour.value % 12) * 30.0 - 90.0
 	_minute_knob.angle = vm.minute.value * 6.0 - 90.0
 	_refresh()
+	vm.activate()
+	if vm.note_available():
+		_drop_note()
 
 
 func _build_note() -> void:
-	var paper := _add_rect(Rect2(60, 130, 380, 630), Color("efe3c8"))
+	var paper := _add_rect(Rect2(NOTE_REST.position, NOTE_REST.size), Color("efe3c8"))
+	_note = paper
 	paper.pivot_offset = paper.size * 0.5
 	paper.rotation = deg_to_rad(-3.0)
+	paper.visible = false
 	var lines: Array[String] = [Texts.get_text("clock.note.title")]
 	for i in 4:
 		lines.append(Texts.get_text("clock.note.%d" % (i + 1)))
@@ -97,3 +105,16 @@ func _on_solved() -> void:
 	tween.tween_property(_lcd, "modulate", Color(1.0, 0.5, 0.4), 0.08)
 	tween.tween_property(_lcd, "modulate", Color.WHITE, 0.08)
 	_finish()
+
+
+## Найденная записка падает к часам.
+func _drop_note() -> void:
+	_note.visible = true
+	_note.position.y = -NOTE_REST.size.y - 40.0
+	_note.rotation = deg_to_rad(22.0)
+	var tween := create_tween().set_parallel()
+	tween.tween_property(_note, "position:y", NOTE_REST.position.y, 0.9) \
+			.set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(_note, "rotation", deg_to_rad(-3.0), 0.9) \
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+

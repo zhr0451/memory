@@ -16,6 +16,21 @@ var pm := Observable.new(true)
 var days := Observable.new(0b1100000)  # старт: включены Сб и Вс
 
 var _done: bool = false
+var _state: GameState
+
+
+func _init(state: GameState = null) -> void:
+	_state = state
+
+
+## Записка нужна для решения; если её ещё не нашли, герой в замешательстве.
+func note_available() -> bool:
+	return _state == null or _state.clock_note_found.value
+
+
+func activate() -> void:
+	if not note_available():
+		_state.say("clock.confused")
 
 
 static func target_minutes() -> int:

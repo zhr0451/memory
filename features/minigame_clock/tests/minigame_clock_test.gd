@@ -54,3 +54,17 @@ func test_knob_angles_snap() -> void:
 	check_eq(MinigameClockViewModel.hour_from_angle(90.0), 6, "вниз — 6")
 	check_eq(MinigameClockViewModel.minute_from_angle(90.0), 30, "вниз — 30 минут")
 	check_eq(MinigameClockViewModel.minute_from_angle(0.0), 15, "вправо — 15 минут")
+
+
+func test_confused_line_only_without_note() -> void:
+	var state := GameState.new()
+	var vm := MinigameClockViewModel.new(state)
+	check(not vm.note_available(), "записки ещё нет")
+	vm.activate()
+	check_eq(state.current_line.value, Texts.get_text("clock.confused"), "герой в замешательстве")
+	var found_state := GameState.new()
+	found_state.clock_note_found.value = true
+	var found_vm := MinigameClockViewModel.new(found_state)
+	found_vm.activate()
+	check(found_vm.note_available(), "записка есть")
+	check_eq(found_state.current_line.value, "", "без реплики")

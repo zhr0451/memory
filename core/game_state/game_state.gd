@@ -10,6 +10,7 @@ var emotion := Observable.new(Emotion.Kind.OFF)
 var battery := Observable.new(MAX_BATTERY)
 var face_on := Observable.new(false)
 var hud_visible := Observable.new(false)
+var clock_note_found := Observable.new(false)
 var current_line := Observable.new("")
 
 var _queue: Array[String] = []
@@ -44,6 +45,7 @@ func reset() -> void:
 	battery.value = MAX_BATTERY
 	face_on.value = false
 	hud_visible.value = false
+	clock_note_found.value = false
 	current_line.value = ""
 
 

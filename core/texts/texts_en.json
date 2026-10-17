@@ -64,5 +64,7 @@
 	"cassette.1": "April",
 	"cassette.2": "July",
 	"cassette.3": "October",
-	"cassette.4": "December"
+	"cassette.4": "December",
+	"junk.note.found": "A crumpled note! Something about school. I'll show it to the clock.",
+	"clock.confused": "A clock... What am I supposed to do with it? There must be a hint around here somewhere."
 }
