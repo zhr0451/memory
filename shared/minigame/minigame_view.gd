@@ -70,3 +70,9 @@ func _add_button(text: String, rect: Rect2, font_size: int = 36) -> Button:
 	button.add_theme_font_size_override("font_size", font_size)
 	add_child(button)
 	return button
+
+
+func _add_glyph_button(glyph: GlyphButton.Glyph, rect: Rect2) -> GlyphButton:
+	var button := GlyphButton.create(glyph, rect)
+	add_child(button)
+	return button

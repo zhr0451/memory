@@ -9,6 +9,7 @@ const ZOOM_EXTRA := 0.06
 const ZOOM_TIME := 10.0
 const SWAY_DEGREES := 0.4
 const FADE_TIME := 0.5
+const INPUT_LOCK := 0.7
 
 var _vm: MemorySlideshowViewModel
 var _chapter: int = 0
@@ -56,7 +57,8 @@ func _process(delta: float) -> void:
 func _gui_input(event: InputEvent) -> void:
 	var button := event as InputEventMouseButton
 	if button != null and button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
-		_vm.next()
+		if _frame_time >= INPUT_LOCK:
+			_vm.next()
 
 
 func _build_caption() -> void:
