@@ -1,0 +1,27 @@
+# Godot 4+
+.godot/
+*.translation
+# Export / build
+/build/
+/export/
+/android/
+*.apk
+*.aab
+*.exe
+*.pck
+*.dmg
+# Mono / editor
+.mono/
+data_*/
+mono_crash.*.json
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+# Claude Code local
+.claude/settings.local.json
+.claude/worktrees/
+# Local MCP / env
+.env
