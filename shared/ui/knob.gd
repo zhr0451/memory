@@ -11,6 +11,15 @@ var angle: float = 0.0:
 		angle = fposmod(value, 360.0)
 		queue_redraw()
 
+## Выключенная ручка не реагирует на мышь и рисуется приглушённой.
+var enabled: bool = true:
+	set(value):
+		enabled = value
+		if not enabled:
+			_dragging = false
+		mouse_default_cursor_shape = Control.CURSOR_DRAG if enabled else Control.CURSOR_ARROW
+		queue_redraw()
+
 var _dragging: bool = false
 
 
@@ -22,7 +31,7 @@ func _ready() -> void:
 
 func _gui_input(event: InputEvent) -> void:
 	var button := event as InputEventMouseButton
-	if button != null and button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
+	if enabled and button != null and button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
 		if _local_to_center(button.position).length() <= size.x * 0.55:
 			_dragging = true
 			_update_from_mouse()
@@ -57,6 +66,11 @@ func _draw() -> void:
 	if texture != null:
 		draw_set_transform(center, deg_to_rad(angle))
 		draw_texture(texture, -texture.get_size() * 0.5)
+		return
+	if not enabled:
+		draw_circle(center, radius, Color("3a4252"))
+		draw_circle(center, radius * 0.86, Color("5b6577"))
+		draw_line(center, center + Vector2.from_angle(deg_to_rad(angle)) * radius * 0.8, Color("232831"), 10.0, true)
 		return
 	draw_circle(center, radius, Color("5b6577"))
 	draw_circle(center, radius * 0.86, Color("8a94a6"))

@@ -1,6 +1,6 @@
 class_name MinigameProjectorView extends MinigameView
-## Диафильм: четыре ручки (лампа, кадр, масштаб, фокус) и кнопка «Готово».
-## Слева — образец правильного кадра; «Готово» показывает, сколько ручек стоит верно.
+## Диафильм: четыре ручки по шагам (лампа, кадр, масштаб, фокус).
+## Доступна одна ручка; подсказка под экраном говорит, что не так с картинкой.
 
 const SCREEN_RECT := Rect2(560, 70, 800, 450)
 const SHADER := preload("res://features/minigame_projector/assets/blur.gdshader")
@@ -17,7 +17,9 @@ var _knobs: Dictionary = {}
 var _picture: ProjectorPicture
 var _dark: ColorRect
 var _glare: ColorRect
-var _result: Label
+var _hint: Label
+var _step_label: Label
+var _labels: Dictionary = {}
 
 
 func _build() -> void:
@@ -43,18 +45,16 @@ func _build() -> void:
 	var blur_overlay := _add_overlay(Color.WHITE)
 	_material.shader = SHADER
 	blur_overlay.material = _material
-	_build_sample()
 	_add_rect(Rect2(360, 600, 1000, 300), Color("2a2f3a"))
 	for entry in KNOB_LAYOUT:
 		var knob := Knob.new()
 		knob.position = Vector2(entry[2], 630)
 		add_child(knob)
 		_knobs[entry[0]] = knob
-		_add_label(Texts.get_text(entry[1]), Rect2(entry[2] - 20, 800, 200, 50), 32, Color("c5ccd8"))
-	_result = _add_label("", Rect2(1400, 590, 440, 90), 40)
-	var done := _add_button(Texts.get_text("ui.done"), Rect2(1420, 710, 400, 120), 48)
+		_labels[entry[0]] = _add_label(Texts.get_text(entry[1]), Rect2(entry[2] - 20, 800, 200, 50), 32, Color("c5ccd8"))
+	_step_label = _add_label("", Rect2(560, 535, 800, 40), 28, Color("8e99a8"))
+	_hint = _add_label("", Rect2(1400, 630, 440, 230), 36, Color("e6c86a"))
 	bind(MinigameProjectorViewModel.new())
-	done.pressed.connect(_vm.submit)
 
 
 func bind(vm: MinigameProjectorViewModel) -> void:
@@ -62,21 +62,12 @@ func bind(vm: MinigameProjectorViewModel) -> void:
 	for knob_id in _knobs:
 		var knob: Knob = _knobs[knob_id]
 		knob.angle = MinigameProjectorViewModel.angle_for(vm.values[knob_id])
-		knob.angle_changed.connect(vm.set_angle.bind(knob_id))
+		knob.angle_changed.connect(func(degrees: float) -> void: vm.set_angle(knob_id, degrees))
 	vm.visuals_changed.connect(_apply_visuals)
-	vm.submitted.connect(_on_submitted)
+	vm.step_changed.connect(func(_step: int) -> void: _update_steps())
 	vm.solved.connect(_on_solved)
 	_apply_visuals()
-
-
-func _build_sample() -> void:
-	var sample_rect := Rect2(150, 110, 320, 180)
-	_add_rect(sample_rect.grow(8), Color("0b0c10"))
-	var sample := ProjectorPicture.new()
-	sample.position = sample_rect.position
-	sample.size = sample_rect.size
-	add_child(sample)
-	_add_label(Texts.get_text("projector.sample"), Rect2(150, 300, 320, 50), 32, Color("c5ccd8"))
+	_update_steps()
 
 
 func _add_overlay(color: Color) -> ColorRect:
@@ -91,11 +82,19 @@ func _apply_visuals() -> void:
 	_dark.color.a = _vm.darkness
 	_glare.color.a = _vm.glare
 	_material.set_shader_parameter("blur", _vm.blur)
+	if _hint != null:
+		_hint.text = Texts.get_text(_vm.hint_key())
 
 
-func _on_submitted(correct: int, total: int) -> void:
-	_result.text = Texts.get_text("projector.result") % [correct, total]
-	_result.add_theme_color_override("font_color", Color("9fd08a") if correct == total else Color("e0a060"))
+func _update_steps() -> void:
+	var step: int = _vm.step.value
+	_step_label.text = Texts.get_text("projector.step") % [mini(step + 1, MinigameProjectorViewModel.Knob.size()), MinigameProjectorViewModel.Knob.size()]
+	_hint.text = Texts.get_text(_vm.hint_key())
+	for knob_id in _knobs:
+		var knob: Knob = _knobs[knob_id]
+		knob.enabled = _vm.is_active(knob_id)
+		var label: Label = _labels[knob_id]
+		label.add_theme_color_override("font_color", Color("e6c86a") if _vm.is_active(knob_id) else (Color("9fd08a") if _vm.is_locked(knob_id) else Color("6b7384")))
 
 
 func _on_solved() -> void:

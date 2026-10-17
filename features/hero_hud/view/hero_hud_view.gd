@@ -16,6 +16,7 @@ var _battery: BatteryView
 var _box: PanelContainer
 var _label: Label
 var _token: int = 0
+var _type_tween: Tween
 
 
 func _ready() -> void:
@@ -62,8 +63,32 @@ func _build_box() -> void:
 	_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_label.add_theme_font_size_override("font_size", 34)
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_box.add_child(_label)
+	var column := VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_box.add_child(column)
+	column.add_child(_label)
+	var skip_hint := Label.new()
+	skip_hint.text = Texts.get_text("ui.skip")
+	skip_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	skip_hint.modulate.a = 0.5
+	skip_hint.add_theme_font_size_override("font_size", 20)
+	skip_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(skip_hint)
 	add_child(_box)
+
+
+func _input(event: InputEvent) -> void:
+	if _box.visible and AdvanceInput.is_advance(event):
+		_skip_line()
+		get_viewport().set_input_as_handled()
+
+
+## Пропуск реплики: сразу следующая (или окно закрывается, если очередь пуста).
+func _skip_line() -> void:
+	if _type_tween != null:
+		_type_tween.kill()
+	_token += 1
+	_vm.finish_line()
 
 
 func _on_emotion_changed(kind: int) -> void:
@@ -95,9 +120,9 @@ func _show_line(text: String, token: int) -> void:
 	_box.visible = true
 	_label.text = text
 	_label.visible_ratio = 0.0
-	var tween := create_tween()
-	tween.tween_property(_label, "visible_ratio", 1.0, text.length() * TYPE_SPEED)
-	await tween.finished
+	_type_tween = create_tween()
+	_type_tween.tween_property(_label, "visible_ratio", 1.0, text.length() * TYPE_SPEED)
+	await _type_tween.finished
 	await get_tree().create_timer(HOLD_BASE + text.length() * HOLD_PER_CHAR).timeout
 	if token == _token:
 		_vm.finish_line()

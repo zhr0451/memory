@@ -24,9 +24,8 @@ func bind(vm: FinaleViewModel) -> void:
 	_vm = vm
 
 
-func _gui_input(event: InputEvent) -> void:
-	var button := event as InputEventMouseButton
-	if _can_restart and button != null and button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
+func _input(event: InputEvent) -> void:
+	if _can_restart and AdvanceInput.is_advance(event):
 		Game.start_game()
 
 

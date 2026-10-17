@@ -8,6 +8,7 @@ signal submitted(correct: bool)
 const MIN_FREQUENCY := 88.0
 const SPAN := 20.0
 const CAPTURE := 1.2
+const FINE_STEP := 0.1
 const TUNE_TOLERANCE := 0.3
 const TARGET_STATION := 3
 const TARGET_CASSETTE := 1
@@ -17,7 +18,9 @@ static var _stations: Array[RadioStation] = []
 
 var frequency := Observable.new(MIN_FREQUENCY)
 var strength := Observable.new(0.0)
+## Чистый текст ближайшей станции; пустой, если сигнала нет.
 var heard_text := Observable.new("")
+var wave_cycles: float = 0.0
 var cassette := Observable.new(-1)
 
 var _done: bool = false
@@ -26,10 +29,10 @@ var _done: bool = false
 static func stations() -> Array[RadioStation]:
 	if _stations.is_empty():
 		_stations = [
-			RadioStation.create(89.5, "radio.ad"),
-			RadioStation.create(93.4, "radio.news"),
-			RadioStation.create(97.2, "radio.music"),
-			RadioStation.create(101.7, "radio.request"),
+			RadioStation.create(89.5, "radio.ad", 2.0),
+			RadioStation.create(93.4, "radio.news", 3.0),
+			RadioStation.create(97.2, "radio.music", 5.0),
+			RadioStation.create(101.7, "radio.request", 7.0),
 		]
 	return _stations
 
@@ -43,13 +46,14 @@ static func angle_for(freq: float) -> float:
 	return (freq - MIN_FREQUENCY) / SPAN * 360.0 - 90.0
 
 
-## Чем слабее сигнал, тем больше букв заменено на «*». Набор скрытых букв постоянный.
+## Чем слабее сигнал, тем больше букв заменено случайными цифрами. Набор скрытых букв постоянный,
+## сами цифры каждый вызов новые.
 static func garble(text: String, signal_strength: float) -> String:
 	var result := ""
 	for i in text.length():
 		var ch := text[i]
 		var threshold := float((i * 37 + 11) % 100) / 100.0
-		result += ch if (ch == " " or signal_strength > threshold) else "*"
+		result += ch if (ch == " " or signal_strength > threshold) else str(randi() % 10)
 	return result
 
 
@@ -59,6 +63,13 @@ func _init() -> void:
 
 func set_angle(degrees: float) -> void:
 	frequency.value = frequency_from_angle(degrees)
+	_refresh()
+
+
+## Точная подстройка стрелками: шаг по сетке 0,1, без выхода за шкалу.
+func nudge(direction: int) -> void:
+	var next := snappedf(frequency.value + direction * FINE_STEP, FINE_STEP)
+	frequency.value = clampf(next, MIN_FREQUENCY, MIN_FREQUENCY + SPAN - FINE_STEP)
 	_refresh()
 
 
@@ -84,6 +95,7 @@ func _refresh() -> void:
 	var s := clampf(1.0 - absf(nearest.frequency - frequency.value) / CAPTURE, 0.0, 1.0)
 	strength.value = s
 	if s <= 0.0:
-		heard_text.value = Texts.get_text("radio.noise")
+		heard_text.value = ""
 	else:
-		heard_text.value = garble(Texts.get_text(nearest.text_key), s)
+		heard_text.value = Texts.get_text(nearest.text_key)
+	wave_cycles = nearest.wave_cycles

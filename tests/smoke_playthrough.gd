@@ -40,10 +40,8 @@ func _run() -> void:
 		var vm: Object = minigame.get("_vm")
 		match chapter:
 			0:
-				for knob in [MinigameProjectorViewModel.Knob.LAMP, MinigameProjectorViewModel.Knob.FRAME, MinigameProjectorViewModel.Knob.ZOOM]:
-					vm.set_angle(knob, MinigameProjectorViewModel.angle_for(MinigameProjectorViewModel.TARGETS[knob]))
-				vm.set_angle(MinigameProjectorViewModel.Knob.FOCUS, MinigameProjectorViewModel.angle_for(vm.focus_target()))
-				vm.submit()
+				for knob in MinigameProjectorViewModel.Knob.values():
+					minigame.get("_knobs")[knob].angle_changed.emit(MinigameProjectorViewModel.angle_for(MinigameProjectorViewModel.TARGETS[knob]))
 			1:
 				vm.set_hour(7)
 				vm.set_minute(30)

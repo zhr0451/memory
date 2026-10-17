@@ -5,10 +5,14 @@ class_name MinigameRadioView extends MinigameView
 const METER_LEDS := 10
 const RECORDING_KEYS: Array[String] = ["tape.1", "tape.2", "tape.3"]
 const RECORDING_LINE_TIME := 3.2
+const GARBLE_INTERVAL := 0.07
+const NOISE_LENGTH := 60
 
 var _vm: MinigameRadioViewModel
 var _knob: Knob
 var _lcd: Label
+var _wave: WaveScreen
+var _garble_timer: float = 0.0
 var _speech: Label
 var _leds: Array[ColorRect] = []
 var _cassette_buttons: Array[Button] = []
@@ -21,8 +25,12 @@ var _playing: bool = false
 func _build() -> void:
 	_add_rect(Rect2(0, 0, 1920, 1080), Color("221d19"))
 	_add_rect(Rect2(300, 90, 1320, 640), Color("4a4038"))
-	_add_rect(Rect2(360, 140, 400, 120), Color("171a16"))
-	_lcd = _add_label("", Rect2(360, 140, 400, 120), 90, Color("c8d3b0"))
+	_wave = WaveScreen.new()
+	_wave.position = Vector2(360, 140)
+	_wave.size = Vector2(400, 120)
+	add_child(_wave)
+	_lcd = _add_label("", Rect2(640, 225, 110, 30), 24, Color("8fa07a"))
+	_lcd.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	for i in METER_LEDS:
 		_leds.append(_add_rect(Rect2(360 + i * 40, 290, 32, 36), Color("2a2622")))
 	_add_rect(Rect2(820, 140, 740, 240), Color("171412"))
@@ -31,6 +39,7 @@ func _build() -> void:
 	_knob.position = Vector2(440, 400)
 	add_child(_knob)
 	_add_label(Texts.get_text("radio.dial"), Rect2(420, 570, 200, 50), 30, Color("c5ccd8"))
+	_add_label(Texts.get_text("radio.controls"), Rect2(310, 630, 460, 90), 26, Color("8e99a8"))
 	_add_rect(Rect2(820, 420, 740, 270), Color("2e2824"))
 	for x in [900, 1260]:
 		var reel := ReelView.new()
@@ -64,16 +73,39 @@ func bind(vm: MinigameRadioViewModel) -> void:
 	_refresh()
 
 
+func _input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed:
+		return
+	if key.keycode == KEY_LEFT or key.keycode == KEY_RIGHT:
+		_vm.nudge(-1 if key.keycode == KEY_LEFT else 1)
+		get_viewport().set_input_as_handled()
+
+
 func _process(delta: float) -> void:
 	if _playing:
 		for reel in _reels:
 			reel.rotation += deg_to_rad(90.0) * delta
+		return
+	_garble_timer -= delta
+	if _garble_timer <= 0.0:
+		_garble_timer = GARBLE_INTERVAL
+		_speech.text = _heard_now()
+
+
+## Что на экране сейчас: непойманные символы — случайные цифры, каждый раз новые.
+func _heard_now() -> String:
+	var text: String = _vm.heard_text.value
+	if text.is_empty():
+		return MinigameRadioViewModel.garble("x".repeat(NOISE_LENGTH), 0.0)
+	return MinigameRadioViewModel.garble(text, _vm.strength.value)
 
 
 func _refresh() -> void:
 	_lcd.text = "%.1f" % _vm.frequency.value
-	if not _playing:
-		_speech.text = _vm.heard_text.value
+	_knob.angle = MinigameRadioViewModel.angle_for(_vm.frequency.value)
+	_wave.strength = _vm.strength.value
+	_wave.cycles = _vm.wave_cycles
 	var lit := int(round(_vm.strength.value * METER_LEDS))
 	for i in _leds.size():
 		_leds[i].color = Color("9fd08a") if i < lit else Color("2a2622")

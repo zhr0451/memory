@@ -54,11 +54,10 @@ func _process(delta: float) -> void:
 	_frame.rotation = sin(_frame_time * 0.6) * deg_to_rad(SWAY_DEGREES)
 
 
-func _gui_input(event: InputEvent) -> void:
-	var button := event as InputEventMouseButton
-	if button != null and button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
-		if _frame_time >= INPUT_LOCK:
-			_vm.next()
+func _input(event: InputEvent) -> void:
+	if AdvanceInput.is_advance(event) and _frame_time >= INPUT_LOCK:
+		_vm.next()
+		get_viewport().set_input_as_handled()
 
 
 func _build_caption() -> void:
