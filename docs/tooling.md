@@ -3,7 +3,8 @@
 - **Godot 4.7.2** (flatpak `org.godotengine.Godot`); обёртка `~/.local/bin/godot` (`flatpak run --filesystem=host`).
 - **MCP godot** — `.mcp.json`, пакет [`@coding-solo/godot-mcp`](https://github.com/Coding-Solo/godot-mcp) (MIT): запуск редактора/проекта, вывод отладки, создание сцен/узлов. Требует одобрения при первом запуске Claude Code. Переменная `GODOT_PATH` указывает на обёртку.
 - **Skills** (`.claude/skills/`): `new-feature` — скаффолд фичи MVVM.
-- Тесты: рекомендуется [GUT](https://github.com/bitwiseman/gut) или gdUnit4 — добавить при первой фиче с логикой (не установлено).
+- Тесты: свой мини-раннер без плагинов. `godot --headless --path . -s tests/test_runner.gd` ищет `*_test.gd` в `core/` и `features/` (класс `extends TestCase`, методы `test_*`, проверки `check`/`check_eq`). Тесты лежат в `features/<f>/tests/` и `core/tests/`; гоняются в CI.
+- Дымовой прогон всей игры без ввода: `godot --headless --path . -s tests/smoke_playthrough.gd` (~1 мин, печатает `SMOKE OK`).
 - Проверка парсинга: `godot --headless --path . --import` (парсинг скриптов/ресурсов; ошибки видны в выводе).
 
 ## CI и публикация

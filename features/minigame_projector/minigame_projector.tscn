@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://features/minigame_projector/view/minigame_projector_view.gd" id="1"]
+
+[node name="MinigameProjector" type="Control"]
+script = ExtResource("1")

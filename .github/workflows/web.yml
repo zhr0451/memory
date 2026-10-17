@@ -36,6 +36,9 @@ jobs:
       - name: Import project
         run: godot --headless --path . --import
 
+      - name: Run tests
+        run: godot --headless --path . -s tests/test_runner.gd
+
       - name: Export Web
         run: |
           mkdir -p build/web
