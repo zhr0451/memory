@@ -68,6 +68,7 @@ func _add_button(text: String, rect: Rect2, font_size: int = 36) -> Button:
 	button.size = rect.size
 	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_font_size_override("font_size", font_size)
+	UiStyle.style_button(button)
 	add_child(button)
 	return button
 

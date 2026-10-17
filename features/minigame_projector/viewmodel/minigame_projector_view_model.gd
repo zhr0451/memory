@@ -10,7 +10,7 @@ enum Knob { LAMP, FRAME, ZOOM, FOCUS }
 
 ## Целевые значения ручек (0…1 по кругу, начало — сверху, по часовой).
 const TARGETS: Dictionary = {Knob.LAMP: 0.62, Knob.FRAME: 0.35, Knob.ZOOM: 0.55}
-const START: Dictionary = {Knob.LAMP: 0.15, Knob.FRAME: 0.85, Knob.ZOOM: 0.10, Knob.FOCUS: 0.90}
+const START: Dictionary = {Knob.LAMP: 0.40, Knob.FRAME: 0.46, Knob.ZOOM: 0.35, Knob.FOCUS: 0.90}
 const TOLERANCE: Dictionary = {Knob.LAMP: 0.05, Knob.FRAME: 0.03, Knob.ZOOM: 0.04, Knob.FOCUS: 0.04}
 const FOCUS_BASE := 0.15
 const FOCUS_SLOPE := 0.6

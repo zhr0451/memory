@@ -43,7 +43,7 @@ func _build() -> void:
 		var button := _add_button(Texts.get_text("cassette.%d" % (i + 1)), Rect2(300 + i * 340, 780, 300, 100), 38)
 		button.toggle_mode = true
 		_cassette_buttons.append(button)
-	_result = _add_label("", Rect2(300, 920, 960, 90), 36)
+	_result = _add_label("", Rect2(460, 920, 820, 90), 36)
 	var done := _add_button(Texts.get_text("ui.done"), Rect2(1300, 920, 320, 100), 44)
 	bind(MinigameRadioViewModel.new())
 	done.pressed.connect(_vm.submit)

@@ -8,6 +8,10 @@ enum Glyph { BACK, UP, DOWN, REWIND, PLAY, FORWARD, STOP }
 const ICON_COLOR := Color("e8ecf2")
 
 
+func _ready() -> void:
+	UiStyle.style_button(self)
+
+
 static func create(p_glyph: Glyph, rect: Rect2) -> GlyphButton:
 	var button := GlyphButton.new()
 	button.glyph = p_glyph

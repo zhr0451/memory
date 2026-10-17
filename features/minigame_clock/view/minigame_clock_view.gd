@@ -22,7 +22,7 @@ func _build() -> void:
 	_lcd = _add_label("", Rect2(950, 150, 480, 140), 120, Color("c8d3b0"))
 	_period = _add_button("", Rect2(950, 320, 480, 80), 40)
 	for i in 7:
-		var day := _add_button(Texts.get_text("day.%d" % (i + 1)), Rect2(950 + i * 70, 430, 64, 70), 26)
+		var day := _add_button(Texts.get_text("day.%d" % (i + 1)), Rect2(950 + i * 76, 430, 70, 70), 24)
 		day.toggle_mode = true
 		_day_buttons.append(day)
 	_hour_knob = Knob.new()
@@ -62,7 +62,7 @@ func bind(vm: MinigameClockViewModel) -> void:
 
 
 func _build_note() -> void:
-	var paper := _add_rect(Rect2(60, 180, 380, 640), Color("efe3c8"))
+	var paper := _add_rect(Rect2(60, 130, 380, 630), Color("efe3c8"))
 	paper.pivot_offset = paper.size * 0.5
 	paper.rotation = deg_to_rad(-3.0)
 	var lines: Array[String] = [Texts.get_text("clock.note.title")]
@@ -73,7 +73,7 @@ func _build_note() -> void:
 	note.position = Vector2(24, 24)
 	note.size = Vector2(paper.size.x - 48, paper.size.y - 48)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	note.add_theme_font_size_override("font_size", 32)
+	note.add_theme_font_size_override("font_size", 28)
 	note.add_theme_color_override("font_color", Color("5a3d2a"))
 	paper.add_child(note)
 

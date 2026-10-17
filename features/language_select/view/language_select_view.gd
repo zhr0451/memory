@@ -30,6 +30,7 @@ func _ready() -> void:
 		button.size = BUTTON_SIZE
 		button.focus_mode = Control.FOCUS_NONE
 		button.add_theme_font_size_override("font_size", 56)
+		UiStyle.style_button(button)
 		add_child(button)
 		_buttons[code] = button
 		x += BUTTON_SIZE.x + 60.0
