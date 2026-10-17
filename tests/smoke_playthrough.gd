@@ -25,6 +25,10 @@ func _run() -> void:
 		quit(1))
 	var main := (load("res://core/main/main.tscn") as PackedScene).instantiate()
 	root.add_child(main)
+	while _scene() == null or _scene().name != &"LanguageSelect":
+		await process_frame
+	var language_view := _scene()
+	language_view.get("_vm").choose("en")
 	await _wait_for(&"junkyard")
 	print("intro -> junkyard ok")
 	var game: Node = root.get_node("Game")
@@ -36,18 +40,23 @@ func _run() -> void:
 		var vm: Object = minigame.get("_vm")
 		match chapter:
 			0:
-				vm.set_angle(MinigameProjectorViewModel.TARGET_ANGLE)
+				for knob in [MinigameProjectorViewModel.Knob.LAMP, MinigameProjectorViewModel.Knob.FRAME, MinigameProjectorViewModel.Knob.ZOOM]:
+					vm.set_angle(knob, MinigameProjectorViewModel.angle_for(MinigameProjectorViewModel.TARGETS[knob]))
+				vm.set_angle(MinigameProjectorViewModel.Knob.FOCUS, MinigameProjectorViewModel.angle_for(vm.focus_target()))
+				vm.submit()
 			1:
-				vm.hours.value = 6
-				vm.minutes.value = 30
-				vm.change_hours(1)
+				vm.set_hour(7)
+				vm.set_minute(30)
+				vm.set_pm(false)
+				for i in 7:
+					if vm.is_day_on(i) != ((MinigameClockViewModel.WORKDAYS >> i) & 1 == 1):
+						vm.toggle_day(i)
+				vm.submit()
 			2:
-				for i in 3:
-					vm.set_mode(MinigameTapeViewModel.Mode.STOP)
-					vm.position.value = MinigameTapeViewModel.FRAGMENTS[i].x
-					vm.set_mode(MinigameTapeViewModel.Mode.PLAY)
-					for t in 400:
-						vm.tick(0.01)
+				var target := MinigameRadioViewModel.stations()[MinigameRadioViewModel.TARGET_STATION]
+				vm.set_angle(MinigameRadioViewModel.angle_for(target.frequency))
+				vm.insert_cassette(MinigameRadioViewModel.TARGET_CASSETTE)
+				vm.submit()
 		await _wait_for(&"memory")
 		var memory := _scene()
 		var memory_vm: MemorySlideshowViewModel = memory.get("_vm")

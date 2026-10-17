@@ -17,9 +17,9 @@
 | `bg_junkyard.png` | фон свалки, холодная палитра, место под 4 предмета | 1920×1080 | must |
 | `item_{projector,clock,tape,camera}.png` | предметы в куче, слоями | ~200×200 | must |
 | `clue_sticker.png`, `clue_name.png` | улики | ~100×100 | could |
-| `mg_projector_{body,crank,light}.png` | проектор | по слою | must |
-| `mg_clock_{body,btn,hint}.png` | будильник; цифры рисует шрифт; hint — рисунок с 07:30 | по слою | must |
-| `mg_tape_{body,reel,btns}.png` | плеер; катушка одна, используется дважды | по слою | must |
+| `mg_projector_{body,knob,frame}.png` | проектор, четыре ручки (одна текстура), кадр диафильма | по слою | must |
+| `mg_clock_{body,face,hands,note}.png` | будильник; цифры рисует шрифт; note — записка с подсказками (текст пока из JSON) | по слою | must |
+| `mg_radio_{body,reel,knob,cassette}.png` | магнитола; катушка одна, используется дважды; кассеты подписывает код | по слою | must |
 | `mg_camera_{body,knob}.png` | видеокамера | по слою | should |
 | `mem_1_a…c.png` | детство: подарок, игра вдвоём, сон в обнимку | 1920×1080 | must |
 | `mem_2_a…c.png` | школа: рюкзак, будильник, друзья | 1920×1080 | must |

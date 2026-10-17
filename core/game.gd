@@ -1,13 +1,17 @@
 extends Node
 ## Автозагрузка Game: общее состояние прохождения и порядок экранов.
-## Свалка → мини-игра → воспоминание → свалка … → «последний день» → финал.
+## Выбор языка → вступление → свалка → мини-игра → воспоминание → свалка … → «последний день» → финал.
 
 var state := GameState.new()
 
 
 func start_game() -> void:
 	state.reset()
-	SceneManager.change_to(&"intro", {}, 0.0, 0.0)
+	SceneManager.change_to(&"language", {}, 0.0, 0.0)
+
+
+func on_language_chosen() -> void:
+	SceneManager.change_to(&"intro", {}, 0.4, 0.4)
 
 
 func on_chapter_selected(chapter: int) -> void:

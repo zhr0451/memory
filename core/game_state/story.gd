@@ -33,6 +33,6 @@ static func _build() -> Array[ChapterData]:
 			["mem.1.a", "mem.1.b", "mem.1.c"], "after.1", Emotion.Kind.JOY))
 	result.append(ChapterData.create(&"clock", &"minigame_clock",
 			["mem.2.a", "mem.2.b", "mem.2.c"], "after.2", Emotion.Kind.WORRY))
-	result.append(ChapterData.create(&"tape", &"minigame_tape",
+	result.append(ChapterData.create(&"radio", &"minigame_radio",
 			["mem.3.a", "mem.3.b"], "after.3", Emotion.Kind.DOUBT))
 	return result

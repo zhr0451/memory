@@ -9,6 +9,7 @@ var chapters_done := Observable.new(0)
 var emotion := Observable.new(Emotion.Kind.OFF)
 var battery := Observable.new(MAX_BATTERY)
 var face_on := Observable.new(false)
+var hud_visible := Observable.new(false)
 var current_line := Observable.new("")
 
 var _queue: Array[String] = []
@@ -42,6 +43,7 @@ func reset() -> void:
 	emotion.value = Emotion.Kind.OFF
 	battery.value = MAX_BATTERY
 	face_on.value = false
+	hud_visible.value = false
 	current_line.value = ""
 
 

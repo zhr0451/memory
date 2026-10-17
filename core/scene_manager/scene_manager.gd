@@ -5,11 +5,12 @@ extends Node
 signal scene_changed(id: StringName)
 
 const SCENES: Dictionary = {
+	&"language": "res://features/language_select/language_select.tscn",
 	&"intro": "res://features/intro/intro.tscn",
 	&"junkyard": "res://features/junkyard/junkyard.tscn",
 	&"minigame_projector": "res://features/minigame_projector/minigame_projector.tscn",
 	&"minigame_clock": "res://features/minigame_clock/minigame_clock.tscn",
-	&"minigame_tape": "res://features/minigame_tape/minigame_tape.tscn",
+	&"minigame_radio": "res://features/minigame_radio/minigame_radio.tscn",
 	&"memory": "res://features/memory_slideshow/memory_slideshow.tscn",
 	&"finale": "res://features/finale/finale.tscn",
 }

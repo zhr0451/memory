@@ -19,3 +19,22 @@ func test_story_scenes_registered() -> void:
 		check(scenes.has(Story.chapter(i).minigame_scene), "сцена мини-игры %d" % i)
 	for id in scenes:
 		check(ResourceLoader.exists(scenes[id]), "файл сцены " + String(id))
+
+
+func test_all_languages_have_same_keys() -> void:
+	var base := Texts.keys_of(Texts.FALLBACK)
+	for code in Texts.LANGUAGES:
+		var keys := Texts.keys_of(code)
+		for key in base:
+			check(keys.has(key), "%s: нет ключа %s" % [code, key])
+		for key in keys:
+			check(base.has(key), "%s: лишний ключ %s" % [code, key])
+
+
+func test_language_switch_changes_text() -> void:
+	Texts.set_language("ru")
+	var ru := Texts.get_text("finale.1")
+	Texts.set_language("en")
+	var en := Texts.get_text("finale.1")
+	Texts.set_language("ru")
+	check(ru != en, "тексты на разных языках различаются")

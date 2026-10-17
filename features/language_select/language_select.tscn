@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://features/language_select/view/language_select_view.gd" id="1"]
+
+[node name="LanguageSelect" type="Control"]
+script = ExtResource("1")

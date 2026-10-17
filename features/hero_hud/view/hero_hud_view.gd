@@ -36,6 +36,8 @@ func bind(vm: HeroHudViewModel) -> void:
 	vm.battery.changed.connect(_on_battery_changed)
 	vm.face_on.changed.connect(_on_face_on_changed)
 	vm.line.changed.connect(_on_line_changed)
+	vm.hud_visible.changed.connect(func(on: bool) -> void: visible = on)
+	visible = vm.hud_visible.value
 	_on_emotion_changed(vm.emotion.value)
 	_on_battery_changed(vm.battery.value)
 	_on_face_on_changed(vm.face_on.value)

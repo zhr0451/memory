@@ -32,6 +32,7 @@ features/<feature>/
 ## Каркас игры (core/)
 - Автозагрузки: `SceneManager` (переходы с затемнением, `change_to(id, params)`, у сцены может быть `setup(params)`) и `Game` (владеет `GameState`, порядок экранов: свалка → мини-игра → воспоминание → …).
 - `GameState` (`core/game_state/`) — Observable: пройденные главы, эмоция, батарейка, лицо включено; очередь реплик (`say(key)`, сигнал `lines_drained`). `Story` — список глав (`ChapterData`).
-- `Texts.get_text(key)` — тексты из `core/texts/texts_ru.json`.
+- `Texts.get_text(key)` — тексты из `core/texts/texts_<язык>.json` (ru, en; недостающий ключ берётся из ru). Язык: `Texts.set_language(code)`; выбор хранит `Settings` (`user://settings.cfg`).
+- Первый экран — `features/language_select`: после выбора включается HUD (`GameState.hud_visible`) и стартует вступление.
 - `core/main/main.tscn` — точка входа: подключает `hero_hud` (CanvasLayer поверх всего) и запускает `Game.start_game()`.
 - Заглушки арта: View рисует себя кодом, а если рядом лежит файл из ассет-листа (`hero_face_joy.png`, `item_projector.png`, `mem_1_a.png`…) в `features/<f>/assets/` — подхватывает его без правок кода.

@@ -4,6 +4,7 @@ class_name HeroHudViewModel extends ViewModel
 var emotion: Observable
 var battery: Observable
 var face_on: Observable
+var hud_visible: Observable
 var line: Observable
 
 var _state: GameState
@@ -14,6 +15,7 @@ func _init(state: GameState) -> void:
 	emotion = state.emotion
 	battery = state.battery
 	face_on = state.face_on
+	hud_visible = state.hud_visible
 	line = state.current_line
 
 

@@ -10,7 +10,13 @@ func _init() -> void:
 	var failed := 0
 	for root in ROOTS:
 		for path in _find_tests(root):
-			var suite := (load(path) as GDScript).new() as TestCase
+			var script := load(path) as GDScript
+			if script == null or not script.can_instantiate():
+				total += 1
+				failed += 1
+				print("  FAIL %s :: не загрузился (ошибка разбора)" % path.get_file())
+				continue
+			var suite := script.new() as TestCase
 			for method in suite.get_method_list():
 				var method_name: String = method["name"]
 				if not method_name.begins_with("test_"):
