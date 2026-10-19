@@ -5,9 +5,34 @@ extends SceneTree
 const ROOTS: Array[String] = ["res://core", "res://features"]
 
 
+## Собирает ошибки движка (SCRIPT ERROR, push_error и т.п.), пока идёт тест:
+## упавший с ошибкой тест иначе выглядел бы как «ok».
+class ErrorCollector extends Logger:
+	var errors: Array[String] = []
+	var _mutex := Mutex.new()
+
+	func _log_error(function: String, file: String, line: int, code: String, rationale: String,
+			_editor_notify: bool, error_type: int, _script_backtraces: Array[ScriptBacktrace]) -> void:
+		if error_type == ERROR_TYPE_WARNING:
+			return
+		var text := rationale if not rationale.is_empty() else code
+		_mutex.lock()
+		errors.append("%s (%s:%d, %s)" % [text, file.get_file(), line, function])
+		_mutex.unlock()
+
+	func take() -> Array[String]:
+		_mutex.lock()
+		var result := errors.duplicate()
+		errors.clear()
+		_mutex.unlock()
+		return result
+
+
 func _init() -> void:
 	var total := 0
 	var failed := 0
+	var collector := ErrorCollector.new()
+	OS.add_logger(collector)
 	for root in ROOTS:
 		for path in _find_tests(root):
 			var script := load(path) as GDScript
@@ -22,7 +47,10 @@ func _init() -> void:
 				if not method_name.begins_with("test_"):
 					continue
 				suite.failures.clear()
+				collector.take()
 				suite.call(method_name)
+				for error in collector.take():
+					suite.failures.append("ошибка движка: " + error)
 				total += 1
 				if suite.failures.is_empty():
 					print("  ok   %s :: %s" % [path.get_file(), method_name])
@@ -31,6 +59,7 @@ func _init() -> void:
 					print("  FAIL %s :: %s" % [path.get_file(), method_name])
 					for message in suite.failures:
 						print("       - " + message)
+	OS.remove_logger(collector)
 	print("Тестов: %d, провалено: %d" % [total, failed])
 	quit(1 if failed > 0 else 0)
 

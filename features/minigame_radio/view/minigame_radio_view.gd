@@ -39,7 +39,7 @@ func _build() -> void:
 	_knob.position = Vector2(440, 400)
 	add_child(_knob)
 	_add_label(Texts.get_text("radio.dial"), Rect2(420, 570, 200, 50), 30, Color("c5ccd8"))
-	_add_label(Texts.get_text("radio.controls"), Rect2(310, 630, 460, 90), 26, Color("8e99a8"))
+	_add_label(Texts.get_text("radio.controls"), Rect2(310, 625, 480, 95), 22, Color("8e99a8"))
 	_add_rect(Rect2(820, 420, 740, 270), Color("2e2824"))
 	for x in [900, 1260]:
 		var reel := ReelView.new()
@@ -54,7 +54,7 @@ func _build() -> void:
 		_cassette_buttons.append(button)
 	_result = _add_label("", Rect2(460, 920, 820, 90), 36)
 	var done := _add_button(Texts.get_text("ui.done"), Rect2(1300, 920, 320, 100), 44)
-	bind(MinigameRadioViewModel.new())
+	bind(MinigameRadioViewModel.new(Game.state))
 	done.pressed.connect(_vm.submit)
 
 
@@ -62,6 +62,7 @@ func bind(vm: MinigameRadioViewModel) -> void:
 	_vm = vm
 	_knob.angle = MinigameRadioViewModel.angle_for(vm.frequency.value)
 	_knob.angle_changed.connect(vm.set_angle)
+	_knob.released.connect(vm.release)
 	for i in _cassette_buttons.size():
 		_cassette_buttons[i].pressed.connect(vm.insert_cassette.bind(i))
 	vm.frequency.changed.connect(func(_v: float) -> void: _refresh())
@@ -106,6 +107,7 @@ func _refresh() -> void:
 	_knob.angle = MinigameRadioViewModel.angle_for(_vm.frequency.value)
 	_wave.strength = _vm.strength.value
 	_wave.cycles = _vm.wave_cycles
+	_lcd.add_theme_color_override("font_color", Color("d8f0a0") if _vm.is_locked() else Color("8fa07a"))
 	var lit := int(round(_vm.strength.value * METER_LEDS))
 	for i in _leds.size():
 		_leds[i].color = Color("9fd08a") if i < lit else Color("2a2622")
@@ -115,13 +117,15 @@ func _refresh() -> void:
 	_deck_label.text = Texts.get_text("cassette.%d" % (inserted + 1)) if inserted >= 0 else ""
 
 
-func _on_submitted(correct: bool) -> void:
-	_result.text = Texts.get_text("radio.right" if correct else "radio.wrong")
+func _on_submitted(verdict: MinigameRadioViewModel.Verdict) -> void:
+	var correct := verdict == MinigameRadioViewModel.Verdict.RIGHT
+	_result.text = Texts.get_text(MinigameRadioViewModel.VERDICT_KEYS[verdict])
 	_result.add_theme_color_override("font_color", Color("9fd08a") if correct else Color("e0a060"))
 
 
 func _on_solved() -> void:
 	_playing = true
+	_knob.enabled = false
 	for key in RECORDING_KEYS:
 		_speech.text = Texts.get_text(key)
 		await get_tree().create_timer(RECORDING_LINE_TIME).timeout

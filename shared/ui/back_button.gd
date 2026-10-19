@@ -12,3 +12,5 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	if ResourceLoader.exists(ICON_PATH):
 		icon = load(ICON_PATH) as Texture2D
+		flat = true
+		icon_alignment = HORIZONTAL_ALIGNMENT_CENTER

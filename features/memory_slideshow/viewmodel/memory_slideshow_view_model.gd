@@ -3,7 +3,8 @@ class_name MemorySlideshowViewModel extends ViewModel
 
 signal finished
 
-var chapter: int
+## Индекс предмета; item_count() — «последний день».
+var item: int
 var frame_index := Observable.new(0)
 var frames: Array[String]
 
@@ -11,10 +12,10 @@ var _state: GameState
 var _done: bool = false
 
 
-func _init(state: GameState, p_chapter: int) -> void:
+func _init(state: GameState, p_item: int) -> void:
 	_state = state
-	chapter = p_chapter
-	frames = Story.frames_for(p_chapter)
+	item = p_item
+	frames = Story.frames_for(p_item)
 
 
 func activate() -> void:

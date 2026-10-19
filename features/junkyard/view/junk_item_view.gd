@@ -1,6 +1,6 @@
 class_name JunkItemView extends Control
-## Предмет в куче. Следующий по сюжету поблёскивает и кликается; остальные притушены.
-## Пока нет item_<id>.png, рисуется заглушка с подписью.
+## Предмет в куче. Все выглядят одинаково: какой из них «живой», показывает только сканер.
+## Кликается только следующий по сюжету. Пока нет item_<id>.png, рисуется заглушка с подписью.
 
 signal pressed(index: int)
 
@@ -12,12 +12,7 @@ var index: int = 0
 var _item_id: StringName
 var _state: JunkyardViewModel.ItemState = JunkyardViewModel.ItemState.LOCKED
 var _texture: Texture2D
-var _glint: float = 0.0:
-	set(value):
-		_glint = value
-		queue_redraw()
 var _hover: bool = false
-var _pulse: Tween
 
 
 func setup(p_index: int, p_id: StringName) -> void:
@@ -37,22 +32,8 @@ func _ready() -> void:
 
 func apply_state(state: JunkyardViewModel.ItemState) -> void:
 	_state = state
-	if _pulse != null:
-		_pulse.kill()
-	mouse_default_cursor_shape = Control.CURSOR_ARROW
-	match state:
-		JunkyardViewModel.ItemState.AVAILABLE:
-			mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-			_pulse = create_tween().set_loops()
-			_pulse.tween_property(self, "_glint", 1.0, 0.9).from(0.0)
-			_pulse.tween_property(self, "_glint", 0.0, 0.9)
-			modulate = Color.WHITE
-		JunkyardViewModel.ItemState.LOCKED:
-			_glint = 0.0
-			modulate = Color(0.55, 0.55, 0.6)
-		JunkyardViewModel.ItemState.DONE:
-			_glint = 0.0
-			modulate = Color(0.4, 0.4, 0.45)
+	var available := state == JunkyardViewModel.ItemState.AVAILABLE
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if available else Control.CURSOR_ARROW
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -77,9 +58,3 @@ func _draw() -> void:
 		var font := ThemeDB.fallback_font
 		var title := Texts.get_text("item.%s" % _item_id)
 		draw_string(font, Vector2(0, 118), title, HORIZONTAL_ALIGNMENT_CENTER, size.x, 30, Color("1c2029"))
-	if _glint > 0.0:
-		var star := Vector2(168, 40)
-		var r := 10.0 + 18.0 * _glint
-		var color := Color(1, 1, 0.85, _glint)
-		draw_line(star + Vector2(-r, 0), star + Vector2(r, 0), color, 3.0, true)
-		draw_line(star + Vector2(0, -r), star + Vector2(0, r), color, 3.0, true)

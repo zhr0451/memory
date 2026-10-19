@@ -1,0 +1,7 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "web-build", "runtimeExecutable": "npx", "runtimeArgs": ["-y", "http-server@14.1.1", "/Users/ekaterinasdvizhkova/Documents/memory-main/build/web", "-p", "8060", "-c-1"], "port": 8060 },
+    { "name": "ld-sandbox-test", "runtimeExecutable": "python3", "runtimeArgs": ["/private/tmp/claude-501/-Users-ekaterinasdvizhkova-Documents-memory-main/9938ae87-feaa-40ed-a2e2-8eb499462729/scratchpad/serve.py", "/private/tmp/claude-501/-Users-ekaterinasdvizhkova-Documents-memory-main/9938ae87-feaa-40ed-a2e2-8eb499462729/scratchpad/site"], "port": 8765 }
+  ]
+}

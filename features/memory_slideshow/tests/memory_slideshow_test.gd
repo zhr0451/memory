@@ -16,5 +16,10 @@ func test_frames_advance_then_finish() -> void:
 
 
 func test_last_day_uses_extra_frames() -> void:
-	var vm := MemorySlideshowViewModel.new(GameState.new(), Story.chapter_count())
+	var vm := MemorySlideshowViewModel.new(GameState.new(), Story.item_count())
 	check_eq(vm.frames.size(), Story.LAST_DAY_FRAMES.size(), "кадры последнего дня")
+
+
+func test_art_names() -> void:
+	check_eq(Story.art_for(0), "mem_1", "детство")
+	check_eq(Story.art_for(Story.item_count()), "mem_4", "последний день")

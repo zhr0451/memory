@@ -31,7 +31,8 @@ features/<feature>/
 
 ## Каркас игры (core/)
 - Автозагрузки: `SceneManager` (переходы с затемнением, `change_to(id, params)`, у сцены может быть `setup(params)`) и `Game` (владеет `GameState`, порядок экранов: свалка → мини-игра → воспоминание → …).
-- `GameState` (`core/game_state/`) — Observable: пройденные главы, эмоция, батарейка, лицо включено; очередь реплик (`say(key)`, сигнал `lines_drained`). `Story` — список глав (`ChapterData`).
+- `GameState` (`core/game_state/`) — Observable: пройденные предметы (`items_done`) и главы (`chapters_done`), эмоция, батарейка, лицо включено, найденные подсказки; очередь реплик (`say(key)`, сигнал `lines_drained`). `Story` — список предметов (`StoryItem`) с номером главы: в главе может быть несколько предметов, батарейка садится и звучит реплика только после последнего (`Story.ends_chapter`). Индекс предмета передаётся в сцены параметром `item`.
+- Заряд батарейки — `GameState.charge` в половинках деления. Мини-игры сообщают об ошибке через `state.mistake()` из своего ViewModel; заряд в ноль → сигнал `battery_dead` → `Game` показывает `features/game_over`. «Попробовать ещё» вызывает `restart_chapter()`: точка перезапуска (`save_checkpoint`) ставится при старте игры и после каждой главы.
 - `Texts.get_text(key)` — тексты из `core/texts/texts_<язык>.json` (ru, en; недостающий ключ берётся из ru). Язык: `Texts.set_language(code)`; выбор хранит `Settings` (`user://settings.cfg`).
 - Первый экран — `features/language_select`: после выбора включается HUD (`GameState.hud_visible`) и стартует вступление.
 - `core/main/main.tscn` — точка входа: подключает `hero_hud` (CanvasLayer поверх всего) и запускает `Game.start_game()`.

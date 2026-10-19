@@ -9,10 +9,13 @@ const SCENES: Dictionary = {
 	&"intro": "res://features/intro/intro.tscn",
 	&"junkyard": "res://features/junkyard/junkyard.tscn",
 	&"minigame_projector": "res://features/minigame_projector/minigame_projector.tscn",
+	&"minigame_phone": "res://features/minigame_phone/minigame_phone.tscn",
 	&"minigame_clock": "res://features/minigame_clock/minigame_clock.tscn",
 	&"minigame_radio": "res://features/minigame_radio/minigame_radio.tscn",
+	&"minigame_computer": "res://features/minigame_computer/minigame_computer.tscn",
 	&"memory": "res://features/memory_slideshow/memory_slideshow.tscn",
 	&"finale": "res://features/finale/finale.tscn",
+	&"game_over": "res://features/game_over/game_over.tscn",
 }
 
 var _stage: Node

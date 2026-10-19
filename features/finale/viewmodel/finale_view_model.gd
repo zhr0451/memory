@@ -18,6 +18,6 @@ func speak() -> Signal:
 
 
 func power_off() -> void:
-	_state.battery.value = 0
+	_state.charge.value = 0
 	_state.emotion.value = Emotion.Kind.OFF
 	_state.face_on.value = false

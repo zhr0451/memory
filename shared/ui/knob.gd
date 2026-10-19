@@ -3,6 +3,8 @@ class_name Knob extends Control
 ## Вместо рисунка можно задать texture (центр вращения посередине).
 
 signal angle_changed(degrees: float)
+## Ручку отпустили после перетаскивания.
+signal released
 
 @export var texture: Texture2D
 
@@ -46,6 +48,7 @@ func _input(event: InputEvent) -> void:
 		var button := event as InputEventMouseButton
 		if button.button_index == MOUSE_BUTTON_LEFT and not button.pressed:
 			_dragging = false
+			released.emit()
 
 
 func _update_from_mouse() -> void:

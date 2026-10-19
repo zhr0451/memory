@@ -80,10 +80,14 @@ func is_correct() -> bool:
 	return total_minutes() == target_minutes() and days.value == WORKDAYS
 
 
-## Кнопка «Завести».
+## Кнопка «Завести». Неверное время или дни — ошибка, батарейка садится.
 func submit() -> void:
+	if _done:
+		return
 	var ok := is_correct()
 	submitted.emit(ok)
-	if ok and not _done:
+	if not ok and _state != null:
+		_state.mistake()
+	if ok:
 		_done = true
 		solved.emit()

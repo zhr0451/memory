@@ -3,15 +3,20 @@ class_name JunkBackdrop extends Control
 
 const TEXTURE_PATH := "res://features/junkyard/assets/bg_junkyard.png"
 
+## Держим ссылку: иначе текстура из load() освобождается сразу после _draw и рисуется белым.
+var _texture: Texture2D
+
 
 func _ready() -> void:
 	size = Vector2(1920, 1080)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if ResourceLoader.exists(TEXTURE_PATH):
+		_texture = load(TEXTURE_PATH) as Texture2D
 
 
 func _draw() -> void:
-	if ResourceLoader.exists(TEXTURE_PATH):
-		draw_texture_rect(load(TEXTURE_PATH) as Texture2D, Rect2(Vector2.ZERO, size), false)
+	if _texture:
+		draw_texture_rect(_texture, Rect2(Vector2.ZERO, size), false)
 		return
 	var top := Color("2f3a4c")
 	var bottom := Color("536077")

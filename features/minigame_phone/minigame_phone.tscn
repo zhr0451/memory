@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://features/minigame_phone/view/minigame_phone_view.gd" id="1"]
+
+[node name="MinigamePhone" type="Control"]
+script = ExtResource("1")

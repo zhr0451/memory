@@ -1,8 +1,18 @@
 extends Node
 ## Автозагрузка Game: общее состояние прохождения и порядок экранов.
 ## Выбор языка → вступление → свалка → мини-игра → воспоминание → свалка … → «последний день» → финал.
+## Ошибки садят батарейку; в ноль — экран проигрыша и глава заново.
+
+## Пауза перед экраном проигрыша: дать увидеть, что ответ неверный.
+const DEATH_DELAY := 1.2
 
 var state := GameState.new()
+var music := MusicPlayer.new()
+
+
+func _ready() -> void:
+	state.battery_dead.connect(_on_battery_dead)
+	add_child(music)
 
 
 func start_game() -> void:
@@ -11,28 +21,47 @@ func start_game() -> void:
 
 
 func on_language_chosen() -> void:
+	music.start()
 	SceneManager.change_to(&"intro", {}, 0.4, 0.4)
 
 
-func on_chapter_selected(chapter: int) -> void:
-	SceneManager.change_to(Story.chapter(chapter).minigame_scene, {"chapter": chapter})
+func on_item_selected(index: int) -> void:
+	SceneManager.change_to(Story.item(index).minigame_scene, {"item": index})
 
 
-func on_minigame_solved(chapter: int) -> void:
-	SceneManager.change_to(&"memory", {"chapter": chapter})
+func on_minigame_solved(index: int) -> void:
+	if state.is_dead():
+		return
+	if Story.frames_for(index).is_empty():
+		on_memory_finished(index)
+	else:
+		SceneManager.change_to(&"memory", {"item": index})
 
 
-func on_memory_finished(chapter: int) -> void:
-	var count := Story.chapter_count()
-	if chapter >= count:
+func on_memory_finished(index: int) -> void:
+	var count := Story.item_count()
+	if index >= count:
 		SceneManager.change_to(&"finale", {}, 1.2, 1.5)
 		return
-	var data := Story.chapter(chapter)
-	state.complete_chapter()
-	state.emotion.value = data.after_emotion
-	state.say(data.after_line_key)
-	if chapter + 1 < count:
-		SceneManager.change_to(&"junkyard", {"zoom_from": chapter})
+	var ends_chapter := Story.ends_chapter(index)
+	state.complete_item(ends_chapter)
+	if ends_chapter:
+		var item := Story.item(index)
+		state.emotion.value = item.after_emotion
+		state.say(item.after_line_key)
+	if index + 1 < count:
+		SceneManager.change_to(&"junkyard", {"zoom_from": index})
 	else:
-		await state.lines_drained
-		SceneManager.change_to(&"memory", {"chapter": count})
+		if state.current_line.value != "":
+			await state.lines_drained
+		SceneManager.change_to(&"memory", {"item": count})
+
+
+## «Попробовать ещё»: GameState уже вернул главу к началу.
+func on_retry() -> void:
+	SceneManager.change_to(&"junkyard", {}, 0.6, 1.2)
+
+
+func _on_battery_dead() -> void:
+	await get_tree().create_timer(DEATH_DELAY).timeout
+	SceneManager.change_to(&"game_over", {}, 1.0, 0.8)

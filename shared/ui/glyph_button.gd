@@ -22,6 +22,8 @@ static func create(p_glyph: Glyph, rect: Rect2) -> GlyphButton:
 
 
 func _draw() -> void:
+	if icon != null:
+		return
 	var c := size * 0.5
 	var u := minf(size.x, size.y) * 0.24
 	match glyph:
