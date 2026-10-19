@@ -86,7 +86,7 @@ func test_cassette_toggles() -> void:
 
 
 func test_news_names_target_frequency() -> void:
-	var spelled := {"ru": "сто один и семь", "en": "one hundred one point seven"}
+	var spelled := {"ru": "сто один и семь", "en": "one-oh-one point seven"}
 	for code in spelled:
 		Texts.set_language(code)
 		check(Texts.get_text("radio.news").contains(spelled[code]), "в новостях называют 101,7 (%s)" % code)
