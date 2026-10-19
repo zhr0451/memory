@@ -10,6 +10,9 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
+	# Игра стартует на весь экран, а снимки делаем в окне 1280×720.
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(Vector2i(1280, 720))
 	var scene_id := StringName(args[0])
 	var out_path := args[1]
 	var item := int(args[2]) if args.size() > 2 else 0
