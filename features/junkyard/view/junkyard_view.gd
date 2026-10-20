@@ -1,6 +1,6 @@
 class_name JunkyardView extends Control
 ## Свалка: статичный экран глазами героя. Клик по доступному предмету — зум и переход к мини-игре.
-## Сам предмет не подсвечен: найти его помогает сканер в правом нижнем углу.
+## Сам предмет не подсвечен: найти его и подсказку к нему помогает сканер в правом нижнем углу.
 
 ## Места предметов в куче (левый верхний угол, холст 1920×1080). Телефон и камера — на будущее.
 const ITEM_POSITIONS: Dictionary = {
@@ -89,11 +89,18 @@ func start_scan() -> void:
 
 func _on_scan_started(index: int) -> void:
 	_scanner.show_pulse()
-	var target := Rect2()
+	var targets: Array[Rect2] = []
 	if index >= 0:
-		var rect := _items[index].get_global_rect()
-		target = Rect2(rect.position - global_position, rect.size)
-	_overlay.pulse(_scanner.position + _scanner.size * 0.5, target)
+		targets.append(_screen_rect(_items[index]))
+	var clue := _vm.clue_for(index)
+	if _clues.has(clue):
+		targets.append(_screen_rect(_clues[clue]))
+	_overlay.pulse(_scanner.position + _scanner.size * 0.5, targets)
+
+
+func _screen_rect(control: Control) -> Rect2:
+	var rect := control.get_global_rect()
+	return Rect2(rect.position - global_position, rect.size)
 
 
 func _add_hidden_clue(vm: JunkyardViewModel, clue: JunkyardViewModel.Clue) -> void:

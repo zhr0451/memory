@@ -88,3 +88,14 @@ func test_scan_refused_on_last_half() -> void:
 	check(not vm.scanning.value, "импульса нет")
 	check_eq(state.current_line.value, Texts.get_text("scan.low"), "герой объясняет")
 	check(not state.is_dead(), "сканом не проиграть")
+
+
+func test_scanner_reveals_clue_of_available_item() -> void:
+	var state := GameState.new()
+	var vm := JunkyardViewModel.new(state)
+	check_eq(vm.clue_for(0), -1, "у проектора подсказки нет")
+	check_eq(vm.clue_for(-1), -1, "доступных нет — нечего показать")
+	state.complete_item(false)
+	check_eq(vm.clue_for(1), JunkyardViewModel.Clue.FRIDGE, "у телефона — рисунок на холодильнике")
+	vm.find_clue(JunkyardViewModel.Clue.FRIDGE)
+	check_eq(vm.clue_for(1), -1, "найденную подсказку не показывает")

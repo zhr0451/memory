@@ -1,5 +1,5 @@
 class_name ScanOverlay extends ColorRect
-## Фильтр режима сканера поверх свалки (шейдер scan.gdshader) и рамка-прицел вокруг найденного предмета.
+## Фильтр режима сканера поверх свалки (шейдер scan.gdshader) и рамки-прицелы вокруг предмета и подсказки к нему.
 ## Импульс: экран зеленеет, волна бежит от сканера, предмет проявляется; через DURATION всё гаснет.
 
 signal finished
@@ -11,6 +11,8 @@ const FADE_OUT := 0.5
 const WAVE_TIME := 1.3
 const WAVE_END := 2300.0
 const MARK_COLOR := Color(0.55, 1.0, 0.7)
+## Параметры шейдера под прямоугольники: предмет, подсказка.
+const PARAMS: Array[StringName] = [&"target", &"clue_target"]
 
 var strength: float = 0.0:
 	set(value):
@@ -24,8 +26,8 @@ var wave: float = 0.0:
 		_update_mark()
 
 var _material := ShaderMaterial.new()
-var _target := Rect2()
-var _mark: Control
+var _targets: Array[Rect2] = []
+var _marks: Array[Control] = []
 var _tween: Tween
 
 
@@ -34,22 +36,26 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_material.shader = SHADER
 	material = _material
-	_mark = Control.new()
-	_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_mark.draw.connect(_draw_mark)
-	add_child(_mark)
+	for i in PARAMS.size():
+		var mark := Control.new()
+		mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		mark.draw.connect(_draw_mark.bind(mark))
+		add_child(mark)
+		_marks.append(mark)
 	strength = 0.0
 
 
-## origin — откуда идёт волна, target — прямоугольник предмета в координатах экрана (пустой — нечего показать).
-func pulse(origin: Vector2, target: Rect2) -> void:
-	_target = target
+## origin — откуда идёт волна, targets — до двух прямоугольников (предмет, подсказка) в координатах экрана.
+func pulse(origin: Vector2, targets: Array[Rect2]) -> void:
+	_targets = targets
 	_material.set_shader_parameter("origin", origin)
 	_material.set_shader_parameter("canvas_size", size)
-	_material.set_shader_parameter("target", Vector4(target.position.x, target.position.y, target.size.x, target.size.y))
-	_mark.position = target.position
-	_mark.size = target.size
-	_mark.modulate.a = 0.0
+	for i in PARAMS.size():
+		var target: Rect2 = targets[i] if i < targets.size() else Rect2()
+		_material.set_shader_parameter(PARAMS[i], Vector4(target.position.x, target.position.y, target.size.x, target.size.y))
+		_marks[i].position = target.position
+		_marks[i].size = target.size
+		_marks[i].modulate.a = 0.0
 	if _tween != null:
 		_tween.kill()
 	_tween = create_tween()
@@ -69,11 +75,13 @@ func stop(fade: float = FADE_OUT) -> void:
 
 
 func _update_mark() -> void:
-	if _mark == null or _target.size.x <= 0.0:
-		return
-	var reach := (_target.get_center() - _origin()).length()
-	_mark.modulate.a = clampf((wave - reach + 120.0) / 120.0, 0.0, 1.0) * strength
-	_mark.queue_redraw()
+	for i in mini(_targets.size(), _marks.size()):
+		var target := _targets[i]
+		if target.size.x <= 0.0:
+			continue
+		var reach := (target.get_center() - _origin()).length()
+		_marks[i].modulate.a = clampf((wave - reach + 120.0) / 120.0, 0.0, 1.0) * strength
+		_marks[i].queue_redraw()
 
 
 func _origin() -> Vector2:
@@ -81,12 +89,12 @@ func _origin() -> Vector2:
 	return value if value is Vector2 else Vector2.ZERO
 
 
-## Уголки-скобки прицела вокруг предмета.
-func _draw_mark() -> void:
-	var r := Rect2(Vector2.ZERO, _mark.size).grow(10.0)
-	var arm := 36.0
+## Уголки-скобки прицела вокруг предмета или подсказки (у мелкой подсказки скобки короче).
+func _draw_mark(mark: Control) -> void:
+	var r := Rect2(Vector2.ZERO, mark.size).grow(10.0)
+	var arm := minf(36.0, mark.size.x * 0.3)
 	for corner in [r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]:
 		var sx := 1.0 if corner.x == r.position.x else -1.0
 		var sy := 1.0 if corner.y == r.position.y else -1.0
-		_mark.draw_line(corner, corner + Vector2(arm * sx, 0), MARK_COLOR, 5.0)
-		_mark.draw_line(corner, corner + Vector2(0, arm * sy), MARK_COLOR, 5.0)
+		mark.draw_line(corner, corner + Vector2(arm * sx, 0), MARK_COLOR, 5.0)
+		mark.draw_line(corner, corner + Vector2(0, arm * sy), MARK_COLOR, 5.0)

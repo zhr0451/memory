@@ -1,6 +1,6 @@
 class_name JunkyardViewModel extends ViewModel
 ## Свалка: какие предметы закрыты, доступны или уже оживлены; спрятанные подсказки к мини-играм;
-## сканер, который на время импульса проявляет доступный предмет (сам по себе предмет не подсвечен).
+## сканер, который на время импульса проявляет доступный предмет и подсказку к нему.
 
 signal item_selected(index: int)
 signal clue_found(clue: Clue)
@@ -15,6 +15,12 @@ const CLUE_LINES: Dictionary = {
 	Clue.NOTE: "junk.note.found",
 	Clue.FLOPPY: "junk.floppy.found",
 	Clue.FRIDGE: "junk.fridge.found",
+}
+## К какому предмету подсказка: сканер проявляет её вместе с этим предметом.
+const CLUE_ITEMS: Dictionary = {
+	Clue.NOTE: &"clock",
+	Clue.FLOPPY: &"computer",
+	Clue.FRIDGE: &"phone",
 }
 
 var items_done: Observable
@@ -55,6 +61,17 @@ func scan() -> bool:
 		_state.say("scan.first")
 	scan_started.emit(available_index())
 	return true
+
+
+## Ненайденная подсказка к предмету index (её покажет сканер) или -1.
+func clue_for(index: int) -> int:
+	if index < 0:
+		return -1
+	var id := Story.item(index).id
+	for clue: Clue in CLUE_ITEMS:
+		if CLUE_ITEMS[clue] == id and not is_clue_found(clue):
+			return clue
+	return -1
 
 
 ## View сообщает, что импульс погас.
