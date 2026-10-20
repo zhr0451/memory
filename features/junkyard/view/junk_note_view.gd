@@ -1,5 +1,6 @@
 class_name JunkNoteView extends Control
-## Спрятанная среди мусора подсказка: смятая записка, дискета или дверца холодильника с рисунком. Нарочно без блеска: её надо заметить самому.
+## Спрятанная среди мусора подсказка: смятая записка, дискета или дверца холодильника с рисунком.
+## Под мышкой чуть увеличивается, как предмет; сканер проявляет подсказку к текущему предмету.
 ## Если есть item_note.png / item_floppy.png / item_fridge.png — рисуется он.
 
 signal pressed
@@ -24,6 +25,7 @@ const FILES: Dictionary = {
 var clue: JunkyardViewModel.Clue = JunkyardViewModel.Clue.NOTE
 
 var _texture: Texture2D
+var _hover_tween: Tween
 
 
 static func create(p_clue: JunkyardViewModel.Clue) -> JunkNoteView:
@@ -46,12 +48,21 @@ func _ready() -> void:
 	if _texture == null:
 		rotation = deg_to_rad(TILTS[clue])
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	mouse_entered.connect(func() -> void: _set_hover(true))
+	mouse_exited.connect(func() -> void: _set_hover(false))
 
 
 func _gui_input(event: InputEvent) -> void:
 	var button := event as InputEventMouseButton
 	if button != null and button.button_index == MOUSE_BUTTON_LEFT and button.pressed:
 		pressed.emit()
+
+
+func _set_hover(value: bool) -> void:
+	if _hover_tween != null:
+		_hover_tween.kill()
+	_hover_tween = create_tween()
+	_hover_tween.tween_property(self, "scale", Vector2.ONE * (1.07 if value else 1.0), 0.12)
 
 
 func _draw() -> void:
